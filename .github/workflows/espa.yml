@@ -1,0 +1,39 @@
+# Εισαγωγή έργων από το ΕΣΠΑ 2014–2020 (anaptyxi.gov.gr).
+# Τρέχει χειροκίνητα από την καρτέλα Actions. Τα αποτελέσματα ανεβαίνουν σε νέο branch,
+# ώστε να ελεγχθούν με pull request πριν μπουν στο main.
+name: Εισαγωγή ΕΣΠΑ
+
+on:
+  workflow_dispatch:
+    inputs:
+      top:
+        description: "Πόσα έργα (κατά προϋπολογισμό) να εξεταστούν"
+        default: "5000"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Λήψη από το anaptyxi.gov.gr
+        run: python espa_fetch.py --top "${{ inputs.top }}" --out espa_raw.json
+      - name: Μετατροπή σε data-espa.js
+        run: python espa_convert.py espa_raw.json data-espa.js
+      - name: Ανέβασμα σε νέο branch
+        run: |
+          BR="espa-import-$(date +%Y%m%d-%H%M)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BR"
+          git add data-espa.js espa_raw.json
+          git commit -m "Εισαγωγή ΕΣΠΑ $(date +%F)"
+          git push origin "$BR"
+          echo "Νέο branch: $BR" >> "$GITHUB_STEP_SUMMARY"
