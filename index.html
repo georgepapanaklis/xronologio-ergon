@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Χρονολόγιο Δημόσιων Έργων</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600;700&family=Literata:opsz,wght@7..72,500;7..72,700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">Πρωτότυπο · έκδοση 3 · 1967–σήμερα</div>
+  <h1>Χρονολόγιο Δημόσιων Έργων</h1>
+  <p class="lede">Για κάθε έργο καταγράφονται οι επίσημες φάσεις του με ημερομηνία και πηγή. Η κυβέρνηση και ο αρμόδιος υπουργός κάθε φάσης προκύπτουν αυτόματα από την ημερομηνία. Δεν υπάρχουν σχόλια ή αξιολογήσεις.</p>
+  <div class="stats" id="stats"></div>
+  <div class="proto">Πρωτότυπο: τα περισσότερα στοιχεία προέρχονται ακόμη από δευτερογενείς πηγές. Η στήλη «Πρωτογενές έγγραφο» δείχνει πού έχει ήδη εντοπιστεί νόμος ή ΦΕΚ.</div>
+</header>
+
+<div class="filters" role="search">
+  <label for="q">Αναζήτηση<input id="q" type="search" placeholder="π.χ. μετρό, γέφυρα, Θεσσαλονίκη"></label>
+  <label for="cat">Κατηγορία<select id="cat"><option value="">Όλες</option></select></label>
+  <label for="gov">Κυβέρνηση κατά τη φάση<select id="gov"><option value="">Όλες</option></select></label>
+  <label for="min">Υπουργός κατά τη φάση<select id="min"><option value="">Όλοι</option></select></label>
+</div>
+
+<div class="legend" aria-label="Υπόμνημα">
+  <span><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="none" stroke="var(--mark)" stroke-width="2"/></svg>Πρώτη επίσημη πράξη</span>
+  <span><svg viewBox="0 0 14 14"><path d="M7 1 L13 7 L7 13 L1 7 Z" fill="var(--mark)"/></svg>Σύμβαση / ανάθεση</span>
+  <span><svg viewBox="0 0 14 14"><rect x="2" y="2" width="10" height="10" fill="var(--mark)"/></svg>Έναρξη εργασιών</span>
+  <span><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="var(--accent)"/></svg>Λειτουργία / εγκαίνια</span>
+  <span><svg viewBox="0 0 14 14"><path d="M7 1 V13" stroke="var(--muted)" stroke-width="2"/></svg>Άλλο ορόσημο</span>
+  <span>Οι εναλλασσόμενες σκιάσεις είναι οι θητείες κυβερνήσεων, χωρίς χρώματα κομμάτων.</span>
+</div>
+
+<div class="main">
+  <aside class="mapbox" aria-label="Χάρτης έργων">
+    <h2>Χάρτης</h2>
+    <div id="map"></div>
+    <p class="maphint">Πάτησε ένα σημείο ή μια διαδρομή για να δεις μόνο αυτά τα έργα. Οι αριθμοί δείχνουν πόσα έργα υπάρχουν σε ένα σημείο. Οι θέσεις είναι ενδεικτικές.</p>
+    <div class="selbar" id="selbar" hidden><span id="seltext"></span><button class="clear" id="clearsel" type="button">Εμφάνιση όλων</button></div>
+  </aside>
+  <div class="list-col" style="display:flex;flex-direction:column;gap:12px;min-width:0">
+    <div class="count" id="count" aria-live="polite"></div>
+    <div class="list" id="list"></div>
+  </div>
+</div>
+
+<section class="method" id="methodologia">
+  <h2>Μεθοδολογία</h2>
+  <ol>
+    <li><strong>Μόνο επίσημες πράξεις.</strong> Ορόσημο είναι μόνο ό,τι τεκμηριώνεται από έγγραφο: νόμος, σύμβαση, απόφαση, ανακήρυξη αναδόχου, έναρξη εργασιών, εγκαίνια. Εξαγγελίες και δηλώσεις δεν καταγράφονται.</li>
+    <li><strong>Κυβέρνηση ανά φάση.</strong> Υπολογίζεται αυτόματα: η ημερομηνία κάθε ορόσημου συγκρίνεται με τις ημερομηνίες ορκωμοσίας των κυβερνήσεων. Οι κυβερνήσεις της περιόδου 1967–1974 καταγράφονται με τον ίδιο τρόπο, με την ένδειξη «Δικτατορία».</li>
+    <li><strong>Υπουργός ανά φάση.</strong> Κάθε έργο συνδέεται με ένα εποπτεύον υπουργείο. Ο υπουργός προκύπτει αυτόματα από το χρονολόγιο υπουργών εκείνου του υπουργείου. Όπου το υπουργείο ορίστηκε με βάση την κατηγορία του έργου και όχι από πηγή, αυτό σημειώνεται ως «εκτίμηση».</li>
+    <li><strong>Ακρίβεια ημερομηνίας.</strong> Αν γνωρίζουμε μόνο μήνα ή έτος και σε αυτό το διάστημα υπήρξαν δύο κυβερνήσεις ή δύο υπουργοί, εμφανίζονται όλοι με σήμανση. Δεν επιλέγουμε εμείς.</li>
+    <li><strong>Κενά.</strong> Ό,τι δεν έχει επαληθευτεί εμφανίζεται ως «Δεν έχει καταγραφεί». Δεν γίνονται εκτιμήσεις ημερομηνιών.</li>
+    <li><strong>Διαφωνίες πηγών.</strong> Όταν οι πηγές δίνουν διαφορετικά στοιχεία, εμφανίζονται όλα.</li>
+    <li><strong>Ίδιοι κανόνες για όλα.</strong> Κανένα έργο δεν προβάλλεται ιδιαίτερα. Δεν υπάρχουν κατατάξεις κυβερνήσεων ή υπουργών. Η σειρά είναι πάντα χρονολογική.</li>
+  </ol>
+  <h2>Κάλυψη χρονολογίων υπουργών</h2>
+  <ul id="coverage"></ul>
+  <h2>Τι λείπει ακόμη</h2>
+  <ul>
+    <li>Υπουργοί Δημοσίων Έργων και Μεταφορών πριν το 1990, Υγείας πριν το 2004, και όλοι οι υπουργοί Παιδείας και Βιομηχανίας / Ενέργειας.</li>
+    <li>Υπουργοί της περιόδου 1967–1974.</li>
+    <li>Πρωτογενή έγγραφα για τις περισσότερες φάσεις, δηλαδή ΦΕΚ, ΑΔΑ Διαύγειας και συμβάσεις από το ΚΗΜΔΗΣ.</li>
+    <li>Σχολεία και μικρότερα έργα, που θα έρθουν με αυτόματη εισαγωγή από ΕΣΠΑ και Διαύγεια.</li>
+    <li>Ιστορικό αλλαγών ανά έργο.</li>
+  </ul>
+</section>
+<footer>Περίγραμμα χάρτη: Natural Earth (κοινό κτήμα), μέσω world-atlas. Χρονολόγια υπουργών: Wikipedia, όπως αναφέρεται ανά υπουργείο. Τελευταία ενημέρωση: Νοέμβριος 2026.</footer>
+</div>
+
+<script src="data-kyverniseis.js"></script>
+<script src="data-ypourgoi.js"></script>
+<script src="data-erga.js"></script>
+<script src="data-xartis.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
