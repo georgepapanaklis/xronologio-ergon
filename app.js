@@ -93,15 +93,22 @@ P.sort((a,b)=>range(a.ms[0].d)[0]-range(b.ms[0].d)[0]);
 $("coverage").innerHTML=Object.values(MIN).filter(m=>m.from).map(m=>`<li>${esc(m.name)}: από ${fmt(m.from)} έως σήμερα · <a href="${m.src}" target="_blank" rel="noopener">πηγή</a></li>`).join("");
 (()=>{const all=P.flatMap(p=>p.ms.map(m=>({p,m})));const docs=all.filter(x=>x.m.doc).length;const mins=all.filter(x=>minsFor(x.p,x.m.d).state==="ok").length;
   $("stats").innerHTML=`<span><b>${P.length}</b> έργα</span><span><b>${all.length}</b> φάσεις</span><span><b>${mins}</b> φάσεις με αρμόδιο υπουργό</span><span><b>${docs}</b> φάσεις με πρωτογενές έγγραφο</span>`})();
-const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+const norm=s=>s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/ς/g,"σ");
+/* Αναζήτηση ανεξάρτητη από την κατάληξη: «Κρήτη», «Κρήτης», «Χανιά», «Χανίων» */
+const stems=q=>q.split(/\s+/).filter(Boolean).map(t=>t.length>=5?t.slice(0,-2):t.length>=4?t.slice(0,-1):t);
+const REGIONS=["Ανατολικής Μακεδονίας και Θράκης","Κεντρικής Μακεδονίας","Δυτικής Μακεδονίας","Ηπείρου","Θεσσαλίας","Ιονίων Νήσων","Δυτικής Ελλάδας","Στερεάς Ελλάδας","Αττικής","Πελοποννήσου","Βορείου Αιγαίου","Νοτίου Αιγαίου","Κρήτης"];
+function fillRegions(){const r=$("reg").value;$("reg").innerHTML='<option value="">Όλη η χώρα</option>'+REGIONS.map(x=>{const n=P.filter(p=>(p.perif||[]).includes(x)).length;return`<option value="${esc(x)}"${x===r?" selected":""}>${esc(x)} (${n})</option>`}).join("");}
+function fillPE(){const r=$("reg").value,cur=$("pe").value;const L=[...new Set(P.filter(p=>!r||(p.perif||[]).includes(r)).flatMap(p=>p.pe||[]))].sort((a,b)=>a.localeCompare(b,"el"));$("pe").innerHTML='<option value="">Όλες</option>'+L.map(x=>`<option value="${esc(x)}"${x===cur?" selected":""}>${esc(x)}</option>`).join("");$("pe").disabled=!L.length;}
+fillRegions();fillPE();
 function render(){
-  const q=norm($("q").value.trim()),c=$("cat").value,o=$("origin").value,g=$("gov").value,mn=$("min").value;
-  const base=P.filter(p=>(!c||p.cat===c)&&(!o||(o==="espa")===(p.origin==="espa"))&&(!q||norm(p.name+" "+p.region+" "+p.cat+" "+(p.contractor||"")).includes(q))&&((!g&&!mn)||p.ms.some(m=>phaseMatch(p,m,g,mn))));
+  const q=stems(norm($("q").value.trim())),c=$("cat").value,o=$("origin").value,rg=$("reg").value,pe=$("pe").value,g=$("gov").value,mn=$("min").value;
+  const base=P.filter(p=>(!c||p.cat===c)&&(!o||(o==="espa")===(p.origin==="espa"))&&(!q.length||(t=>q.every(s=>t.includes(s)))(norm(p.name+" "+p.region+" "+p.cat+" "+(p.contractor||"")+" "+(p.perif||[]).join(" ")+" "+(p.pe||[]).join(" "))))&&(!rg||(p.perif||[]).includes(rg))&&(!pe||(p.pe||[]).includes(pe))&&((!g&&!mn)||p.ms.some(m=>phaseMatch(p,m,g,mn))));
   drawMap(base);
   const out=sel?base.filter(p=>sel.includes(p.id)):base;
   $("selbar").hidden=!sel;if(sel)$("seltext").textContent="Επιλογή από τον χάρτη: "+sel.length+(sel.length===1?" έργο":" έργα");
   $("count").textContent=out.length+(out.length===1?" έργο":" έργα")+((g||mn)?" με τουλάχιστον μία φάση που ταιριάζει. Οι σχετικές φάσεις επισημαίνονται.":", σε χρονολογική σειρά πρώτης φάσης.");
   $("list").innerHTML=out.length?out.map(p=>card(p,g,mn)).join(""):'<div class="empty">Κανένα έργο δεν ταιριάζει στα φίλτρα. Δοκίμασε άλλη λέξη ή πάτησε «Εμφάνιση όλων».</div>'}
-["q","cat","origin","gov","min"].forEach(id=>$(id).addEventListener("input",render));
+["q","cat","origin","gov","min","pe"].forEach(id=>$(id).addEventListener("input",render));
+$("reg").addEventListener("input",()=>{$("pe").value="";fillPE();render()});
 $("clearsel").addEventListener("click",()=>{sel=null;render()});
 render();

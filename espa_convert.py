@@ -31,7 +31,7 @@ for (k, t, body, bud, pay, comp, th, mun, pref, lat, lon, en, au, co, cp, st) in
     geo = None if (lat, lon) == PLACEHOLDER or lat is None else [lat, lon]
     region = "Κρήτη" + (f" – Π.Ε. {pref}" if pref else "") + (f", Δήμος {mun}" if mun else "")
     pct = round(pay / bud * 100) if bud else None
-    out.append({"id": f"espa-{k}", "origin": "espa", "mis": k, "name": t.strip(), "cat": cat(t, th), "region": region,
+    out.append({"id": f"espa-{k}", "origin": "espa", "mis": k, "perif": ["Κρήτης"], "pe": [pref] if pref else [], "name": t.strip(), "cat": cat(t, th), "region": region,
         "status": "Ολοκληρωμένο (κατά το ΕΣΠΑ)" if done else "Σε εξέλιξη (κατά το ΕΣΠΑ)", "geo": geo, "ministry": None, "mv": False,
         "cost": f"Προϋπολογισμός €{bud:,.0f} · Πληρωμές €{pay:,.0f} ({pct}%)".replace(",", "."),
         "funding": f"ΕΣΠΑ 2014–2020 · Θεματικός στόχος: {th}", "contractor": f"Δικαιούχος: {body.strip()}",
