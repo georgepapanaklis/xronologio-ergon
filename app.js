@@ -1,3 +1,5 @@
+/* Συγχώνευση των έργων ΕΣΠΑ (data-espa.js), αν υπάρχουν */
+if(typeof P_ESPA!=="undefined")P.push(...P_ESPA);
 const T={first:"Πρώτη επίσημη πράξη",contract:"Σύμβαση / ανάθεση",start:"Έναρξη εργασιών",open:"Λειτουργία / εγκαίνια",other:"Άλλο ορόσημο"};
 const MON=["Ιαν","Φεβ","Μαρ","Απρ","Μαΐ","Ιουν","Ιουλ","Αυγ","Σεπ","Οκτ","Νοε","Δεκ"];
 function range(d){const p=d.split("-").map(Number);
@@ -45,7 +47,7 @@ function govCell(m){const g=govsFor(m.d);
 function minCell(p,m){const r=minsFor(p,m.d);const est=p.mv?"":`<br><span class="na">Υπουργείο: εκτίμηση βάσει κατηγορίας</span>`;
   if(r.state==="before")return`<span class="na">Δεν έχει καταγραφεί: το χρονολόγιο υπουργών ${esc(r.m.name)} ξεκινά το ${r.m.from.slice(0,4)}</span>`;
   if(r.state==="gap")return`<span class="na">Δεν έχει καταγραφεί υπουργός γι' αυτό το διάστημα</span>`;
-  if(r.state==="none")return`<span class="na">Δεν έχει καταγραφεί ακόμη χρονολόγιο υπουργών ${r.m?esc(r.m.name):""}</span>`;
+  if(r.state==="none")return r.m?`<span class="na">Δεν έχει καταγραφεί ακόμη χρονολόγιο υπουργών ${esc(r.m.name)}</span>`:`<span class="na">Δεν αντιστοιχίζεται: το έργο υλοποιεί ο δικαιούχος φορέας</span>`;
   if(r.L.length===1)return`${esc(r.L[0].name)}<br><span class="na">${esc(r.L[0].title)}</span>${est}`;
   return`<span class="flag">Στο διάστημα «${fmt(m.d)}» υπήρξαν ${r.L.length} υπουργοί:</span> `+r.L.map(x=>esc(x.name)).join(" · ")+est}
 function docCell(m){if(!m.doc)return'<span class="na">Αναζητείται</span>';
@@ -55,11 +57,11 @@ function phaseMatch(p,m,g,mn){return(!g||govsFor(m.d).some(x=>x.id===g))&&(!mn||
 function card(p,g,mn){
   const y=p.ms.map(m=>m.d.slice(0,4));const act=g||mn;
   const rows=p.ms.map(m=>`<tr${act&&phaseMatch(p,m,g,mn)?' class="hi"':''}><td>${esc(T[m.t])}</td><td>${esc(m.l)}${m.flag?`<br><span class="flag">${esc(m.flag)}</span>`:""}</td><td class="date">${fmt(m.d)}</td><td>${govCell(m)}</td><td>${minCell(p,m)}</td><td>${docCell(m)}</td><td><a href="${p.src[m.s][1]}" target="_blank" rel="noopener">[${m.s+1}]</a></td></tr>`).join("");
-  const build=p.status!=="Σε λειτουργία";
+  const build=/κατασκευή|εξέλιξη/i.test(p.status);
   return`<article class="card" id="p-${p.id}">
-  <div class="card-head"><h3>${esc(p.name)}</h3><div class="meta"><span class="chip cat">${esc(p.cat)}</span><span class="chip">${esc(p.region)}</span><span class="chip${build?" build":""}">${esc(p.status)}</span><span class="chip">${y[0]}${y.length>1?"–"+y[y.length-1]:""}</span></div></div>
+  <div class="card-head"><h3>${esc(p.name)}</h3><div class="meta">${p.origin==="espa"?'<span class="chip src">ΕΣΠΑ · MIS '+p.mis+'</span>':""}<span class="chip cat">${esc(p.cat)}</span><span class="chip">${esc(p.region)}</span><span class="chip${build?" build":""}">${esc(p.status)}</span><span class="chip">${y[0]}${y.length>1?"–"+y[y.length-1]:""}</span></div></div>
   <div class="axis">${axis(p,g)}</div>
-  <dl class="facts"><div><dt>Κόστος</dt><dd>${val(p.cost)}</dd></div><div><dt>Χρηματοδότηση</dt><dd>${val(p.funding)}</dd></div><div><dt>Ανάδοχος / φορέας</dt><dd>${val(p.contractor)}</dd></div><div><dt>Εποπτεύον υπουργείο</dt><dd>${esc(MIN[p.ministry].name)}${p.mv?"":' <span class="na">(εκτίμηση)</span>'}</dd></div></dl>
+  <dl class="facts"><div><dt>Κόστος</dt><dd>${val(p.cost)}</dd></div><div><dt>Χρηματοδότηση</dt><dd>${val(p.funding)}</dd></div><div><dt>Ανάδοχος / φορέας</dt><dd>${val(p.contractor)}</dd></div>${p.ministry?`<div><dt>Εποπτεύον υπουργείο</dt><dd>${esc(MIN[p.ministry].name)}${p.mv?"":' <span class="na">(εκτίμηση)</span>'}</dd></div>`:""}</dl>
   ${p.note?`<p class="note">${esc(p.note)}</p>`:""}
   <details${act?" open":""}><summary>Φάσεις, κυβερνήσεις, υπουργοί και πηγές</summary>
    <div class="tbl"><table><thead><tr><th>Φάση</th><th>Πράξη</th><th>Ημερομηνία</th><th>Κυβέρνηση (πρωθυπουργός)</th><th>Αρμόδιος υπουργός</th><th>Πρωτογενές έγγραφο</th><th>Πηγή</th></tr></thead><tbody>${rows}</tbody></table></div>
@@ -72,9 +74,9 @@ let sel=null;
 function drawMap(visible){
   const vis=new Set(visible.map(p=>p.id));
   let s=`<svg viewBox="0 0 440 425" role="img" aria-label="Χάρτης της Ελλάδας με τα έργα"><path class="land" d="${GR}"/>`;
-  P.filter(p=>Array.isArray(p.geo[0])).forEach(p=>{const pts=p.geo.map(proj).map(q=>q.map(v=>v.toFixed(1)).join(",")).join(" ");
+  P.filter(p=>p.geo&&Array.isArray(p.geo[0])).forEach(p=>{const pts=p.geo.map(proj).map(q=>q.map(v=>v.toFixed(1)).join(",")).join(" ");
     s+=`<g class="pin${vis.has(p.id)?"":" dim"}" tabindex="0" role="button" data-ids="${p.id}" aria-label="${esc(p.name)}"><polyline points="${pts}"/><title>${esc(p.name)}</title></g>`});
-  const pts=P.filter(p=>!Array.isArray(p.geo[0])).map(p=>({p,xy:proj(p.geo)}));const groups=[];
+  const pts=P.filter(p=>p.geo&&!Array.isArray(p.geo[0])).map(p=>({p,xy:proj(p.geo)}));const groups=[];
   pts.forEach(o=>{const g=groups.find(g=>Math.hypot(g.xy[0]-o.xy[0],g.xy[1]-o.xy[1])<10);if(g){g.items.push(o.p)}else groups.push({xy:o.xy,items:[o.p]})});
   groups.forEach(g=>{const n=g.items.length,on=g.items.some(p=>vis.has(p.id)),r=n>1?9:6;
     s+=`<g class="pin${on?"":" dim"}" tabindex="0" role="button" data-ids="${g.items.map(p=>p.id).join(",")}" aria-label="${esc(g.items.map(p=>p.name).join(", "))}"><circle cx="${g.xy[0].toFixed(1)}" cy="${g.xy[1].toFixed(1)}" r="${r}"/>${n>1?`<text x="${g.xy[0].toFixed(1)}" y="${(g.xy[1]+3.5).toFixed(1)}" text-anchor="middle">${n}</text>`:""}<title>${esc(g.items.map(p=>p.name).join("\n"))}</title></g>`});
@@ -93,13 +95,13 @@ $("coverage").innerHTML=Object.values(MIN).filter(m=>m.from).map(m=>`<li>${esc(m
   $("stats").innerHTML=`<span><b>${P.length}</b> έργα</span><span><b>${all.length}</b> φάσεις</span><span><b>${mins}</b> φάσεις με αρμόδιο υπουργό</span><span><b>${docs}</b> φάσεις με πρωτογενές έγγραφο</span>`})();
 const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
 function render(){
-  const q=norm($("q").value.trim()),c=$("cat").value,g=$("gov").value,mn=$("min").value;
-  const base=P.filter(p=>(!c||p.cat===c)&&(!q||norm(p.name+" "+p.region+" "+p.cat+" "+(p.contractor||"")).includes(q))&&((!g&&!mn)||p.ms.some(m=>phaseMatch(p,m,g,mn))));
+  const q=norm($("q").value.trim()),c=$("cat").value,o=$("origin").value,g=$("gov").value,mn=$("min").value;
+  const base=P.filter(p=>(!c||p.cat===c)&&(!o||(o==="espa")===(p.origin==="espa"))&&(!q||norm(p.name+" "+p.region+" "+p.cat+" "+(p.contractor||"")).includes(q))&&((!g&&!mn)||p.ms.some(m=>phaseMatch(p,m,g,mn))));
   drawMap(base);
   const out=sel?base.filter(p=>sel.includes(p.id)):base;
   $("selbar").hidden=!sel;if(sel)$("seltext").textContent="Επιλογή από τον χάρτη: "+sel.length+(sel.length===1?" έργο":" έργα");
   $("count").textContent=out.length+(out.length===1?" έργο":" έργα")+((g||mn)?" με τουλάχιστον μία φάση που ταιριάζει. Οι σχετικές φάσεις επισημαίνονται.":", σε χρονολογική σειρά πρώτης φάσης.");
   $("list").innerHTML=out.length?out.map(p=>card(p,g,mn)).join(""):'<div class="empty">Κανένα έργο δεν ταιριάζει στα φίλτρα. Δοκίμασε άλλη λέξη ή πάτησε «Εμφάνιση όλων».</div>'}
-["q","cat","gov","min"].forEach(id=>$(id).addEventListener("input",render));
+["q","cat","origin","gov","min"].forEach(id=>$(id).addEventListener("input",render));
 $("clearsel").addEventListener("click",()=>{sel=null;render()});
 render();

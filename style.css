@@ -60,6 +60,7 @@ button.clear{font:inherit;font-size:13px;border:1px solid var(--line);background
 .meta{display:flex;flex-wrap:wrap;gap:6px}
 .chip{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:2px 9px;color:var(--muted);white-space:nowrap}
 .chip.cat{background:var(--accent-soft);color:var(--accent);border-color:transparent;font-weight:600}
+.chip.src{border-style:dashed;color:var(--ink)}
 .chip.build{background:var(--warn-bg);color:var(--warn);border-color:transparent;font-weight:600}
 .axis{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .axis svg{display:block;width:100%;min-width:600px;height:auto}
