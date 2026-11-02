@@ -88,3 +88,6 @@ section.method ol,section.method ul{margin:0;padding-left:20px;display:flex;flex
 .empty{padding:24px;text-align:center;color:var(--muted);background:var(--paper);border:1px dashed var(--line);border-radius:10px}
 footer{font-size:12.5px;color:var(--muted)}
 @media (prefers-reduced-motion: no-preference){.pin circle,.pin polyline{transition:opacity .2s}}
+
+button.more{font:inherit;font-size:14px;font-weight:600;color:var(--accent);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px;cursor:pointer}
+button.more:hover{border-color:var(--accent)}

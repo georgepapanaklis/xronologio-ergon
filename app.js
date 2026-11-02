@@ -100,15 +100,18 @@ const REGIONS=["Ανατολικής Μακεδονίας και Θράκης","
 function fillRegions(){const r=$("reg").value;$("reg").innerHTML='<option value="">Όλη η χώρα</option>'+REGIONS.map(x=>{const n=P.filter(p=>(p.perif||[]).includes(x)).length;return`<option value="${esc(x)}"${x===r?" selected":""}>${esc(x)} (${n})</option>`}).join("");}
 function fillPE(){const r=$("reg").value,cur=$("pe").value;const L=[...new Set(P.filter(p=>!r||(p.perif||[]).includes(r)).flatMap(p=>p.pe||[]))].sort((a,b)=>a.localeCompare(b,"el"));$("pe").innerHTML='<option value="">Όλες</option>'+L.map(x=>`<option value="${esc(x)}"${x===cur?" selected":""}>${esc(x)}</option>`).join("");$("pe").disabled=!L.length;}
 fillRegions();fillPE();
-function render(){
+const PAGE=40;let limit=PAGE;
+function render(keep){if(!keep)limit=PAGE;
   const q=stems(norm($("q").value.trim())),c=$("cat").value,o=$("origin").value,rg=$("reg").value,pe=$("pe").value,g=$("gov").value,mn=$("min").value;
   const base=P.filter(p=>(!c||p.cat===c)&&(!o||(o==="espa")===(p.origin==="espa"))&&(!q.length||(t=>q.every(s=>t.includes(s)))(norm(p.name+" "+p.region+" "+p.cat+" "+(p.contractor||"")+" "+(p.perif||[]).join(" ")+" "+(p.pe||[]).join(" "))))&&(!rg||(p.perif||[]).includes(rg))&&(!pe||(p.pe||[]).includes(pe))&&((!g&&!mn)||p.ms.some(m=>phaseMatch(p,m,g,mn))));
   drawMap(base);
   const out=sel?base.filter(p=>sel.includes(p.id)):base;
   $("selbar").hidden=!sel;if(sel)$("seltext").textContent="Επιλογή από τον χάρτη: "+sel.length+(sel.length===1?" έργο":" έργα");
   $("count").textContent=out.length+(out.length===1?" έργο":" έργα")+((g||mn)?" με τουλάχιστον μία φάση που ταιριάζει. Οι σχετικές φάσεις επισημαίνονται.":", σε χρονολογική σειρά πρώτης φάσης.");
-  $("list").innerHTML=out.length?out.map(p=>card(p,g,mn)).join(""):'<div class="empty">Κανένα έργο δεν ταιριάζει στα φίλτρα. Δοκίμασε άλλη λέξη ή πάτησε «Εμφάνιση όλων».</div>'}
-["q","cat","origin","gov","min","pe"].forEach(id=>$(id).addEventListener("input",render));
+  const shown=out.slice(0,limit);$("list").innerHTML=out.length?shown.map(p=>card(p,g,mn)).join("")+(out.length>limit?`<button class="more" id="more" type="button">Εμφάνιση ${Math.min(PAGE,out.length-limit)} ακόμη (εμφανίζονται ${limit} από ${out.length})</button>`:""):'<div class="empty">Κανένα έργο δεν ταιριάζει στα φίλτρα. Δοκίμασε άλλη λέξη ή πάτησε «Εμφάνιση όλων».</div>'}
+["q","cat","origin","gov","min","pe"].forEach(id=>$(id).addEventListener("input",()=>render()));
 $("reg").addEventListener("input",()=>{$("pe").value="";fillPE();render()});
 $("clearsel").addEventListener("click",()=>{sel=null;render()});
 render();
+
+document.addEventListener("click",e=>{if(e.target&&e.target.id==="more"){limit+=PAGE;render(true)}});
