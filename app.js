@@ -41,22 +41,23 @@ function axis(p,hiGov){
   return s+"</svg>"}
 
 /* Table cells */
+const why=(id,t)=>`<a class="why" href="#${id}" title="${esc(t)}" aria-label="Γιατί; ${esc(t)}">?</a>`;
 function govCell(m){const g=govsFor(m.d);
   if(g.length===1)return`${esc(g[0].pm)} <span class="na">(${esc(g[0].kind)})</span>`;
-  return`<span class="flag">Στο διάστημα «${fmt(m.d)}» υπήρξαν ${g.length} κυβερνήσεις:</span> `+g.map(x=>esc(x.pm)).join(" · ")+`<br><span class="na">Χρειάζεται ακριβέστερη ημερομηνία.</span>`}
-function minCell(p,m){const r=minsFor(p,m.d);const est=p.mv?"":`<br><span class="na">Υπουργείο: εκτίμηση βάσει κατηγορίας</span>`;
-  if(r.state==="before")return`<span class="na">Δεν έχει καταγραφεί: το χρονολόγιο υπουργών ${esc(r.m.name)} ξεκινά το ${r.m.from.slice(0,4)}</span>`;
-  if(r.state==="gap")return`<span class="na">Δεν έχει καταγραφεί υπουργός γι' αυτό το διάστημα</span>`;
-  if(r.state==="none")return r.m?`<span class="na">Δεν έχει καταγραφεί ακόμη χρονολόγιο υπουργών ${esc(r.m.name)}</span>`:`<span class="na">Δεν αντιστοιχίζεται: το έργο υλοποιεί ο δικαιούχος φορέας</span>`;
+  return`<span class="flag">Στο διάστημα «${fmt(m.d)}» υπήρξαν ${g.length} κυβερνήσεις:</span> `+g.map(x=>esc(x.pm)).join(" · ")+`<br><span class="na">Χρειάζεται ακριβέστερη ημερομηνία.</span> ${why("kanonas-4","Δεν επιλέγουμε μία κυβέρνηση όταν η ημερομηνία δεν είναι ακριβής")}`}
+function minCell(p,m){const r=minsFor(p,m.d);const est=p.mv?"":`<br><span class="na">Υπουργείο: εκτίμηση βάσει κατηγορίας</span> ${why("kanonas-3","Το υπουργείο ορίστηκε από την κατηγορία του έργου")}`;
+  if(r.state==="before")return`<span class="na">Δεν έχει καταγραφεί: το χρονολόγιο υπουργών ${esc(r.m.name)} ξεκινά το ${r.m.from.slice(0,4)}</span> ${why("kalypsi","Από πότε καλύπτει κάθε χρονολόγιο υπουργών")}`;
+  if(r.state==="gap")return`<span class="na">Δεν έχει καταγραφεί υπουργός γι' αυτό το διάστημα</span> ${why("kanonas-5","Τα κενά δεν συμπληρώνονται με εκτιμήσεις")}`;
+  if(r.state==="none")return r.m?`<span class="na">Δεν έχει καταγραφεί ακόμη χρονολόγιο υπουργών ${esc(r.m.name)}</span> ${why("kalypsi","Ποια χρονολόγια υπουργών υπάρχουν")}`:`<span class="na">Δεν αντιστοιχίζεται: το έργο υλοποιεί ο δικαιούχος φορέας</span> ${why("kanonas-6","Γιατί τα έργα ΕΣΠΑ δεν έχουν υπουργό")}`;
   if(r.L.length===1)return`${esc(r.L[0].name)}<br><span class="na">${esc(r.L[0].title)}</span>${est}`;
-  return`<span class="flag">Στο διάστημα «${fmt(m.d)}» υπήρξαν ${r.L.length} υπουργοί:</span> `+r.L.map(x=>esc(x.name)).join(" · ")+est}
-function docCell(m){if(!m.doc)return'<span class="na">Αναζητείται</span>';
+  return`<span class="flag">Στο διάστημα «${fmt(m.d)}» υπήρξαν ${r.L.length} υπουργοί:</span> `+r.L.map(x=>esc(x.name)).join(" · ")+" "+why("kanonas-4","Δεν επιλέγουμε έναν υπουργό όταν η ημερομηνία δεν είναι ακριβής")+est}
+function docCell(m){if(!m.doc)return'<span class="na">Αναζητείται</span> '+why("leipei","Το πρωτογενές έγγραφο δεν έχει εντοπιστεί ακόμη");
   return`<span class="okdoc">${esc(m.doc)}</span>`+(m.docu?`<br><a href="${m.docu}" target="_blank" rel="noopener">Κείμενο νόμου</a>`:"")}
-const val=v=>v?esc(v):'<span class="na">Δεν έχει καταγραφεί</span>';
+const val=v=>v?esc(v):'<span class="na">Δεν έχει καταγραφεί</span> '+why("kanonas-5","Τα κενά δεν συμπληρώνονται με εκτιμήσεις");
 function phaseMatch(p,m,g,mn){return(!g||govsFor(m.d).some(x=>x.id===g))&&(!mn||(()=>{const r=minsFor(p,m.d);return r.state==="ok"&&r.L.some(x=>x.name===mn)})())}
 function card(p,g,mn){
   const y=p.ms.map(m=>m.d.slice(0,4));const act=g||mn;
-  const rows=p.ms.map(m=>`<tr${act&&phaseMatch(p,m,g,mn)?' class="hi"':''}><td>${esc(T[m.t])}</td><td>${esc(m.l)}${m.flag?`<br><span class="flag">${esc(m.flag)}</span>`:""}</td><td class="date">${fmt(m.d)}</td><td>${govCell(m)}</td><td>${minCell(p,m)}</td><td>${docCell(m)}</td><td><a href="${p.src[m.s][1]}" target="_blank" rel="noopener">[${m.s+1}]</a></td></tr>`).join("");
+  const rows=p.ms.map(m=>`<tr${act&&phaseMatch(p,m,g,mn)?' class="hi"':''}><td>${esc(T[m.t])}</td><td>${esc(m.l)}${m.flag?`<br><span class="flag">${esc(m.flag)}</span> ${why("kanonas-7","Όταν οι πηγές διαφωνούν, εμφανίζονται όλες οι εκδοχές")}`:""}</td><td class="date">${fmt(m.d)}</td><td>${govCell(m)}</td><td>${minCell(p,m)}</td><td>${docCell(m)}</td><td><a href="${p.src[m.s][1]}" target="_blank" rel="noopener">[${m.s+1}]</a></td></tr>`).join("");
   const build=/κατασκευή|εξέλιξη/i.test(p.status);
   return`<article class="card" id="p-${p.id}">
   <div class="card-head"><h3>${esc(p.name)}</h3><div class="meta">${p.origin==="espa"?'<span class="chip src">ΕΣΠΑ · MIS '+p.mis+'</span>':""}<span class="chip cat">${esc(p.cat)}</span><span class="chip">${esc(p.region)}</span><span class="chip${build?" build":""}">${esc(p.status)}</span><span class="chip">${y[0]}${y.length>1?"–"+y[y.length-1]:""}</span></div></div>
@@ -115,3 +116,15 @@ $("clearsel").addEventListener("click",()=>{sel=null;render()});
 render();
 
 document.addEventListener("click",e=>{if(e.target&&e.target.id==="more"){limit+=PAGE;render(true)}});
+
+/* Δύο προβολές με βάση το #: τα έργα και η μεθοδολογία */
+const METH=/^(methodologia|kanonas-\d|endeixeis|piges|kalypsi|leipei)$/;
+function route(){const h=location.hash.slice(1);const m=METH.test(h);
+  $("view-erga").hidden=m;$("view-methodologia").hidden=!m;
+  $("nav-erga").classList.toggle("on",!m);$("nav-meth").classList.toggle("on",m);
+  if(m){const el=h==="methodologia"?null:document.getElementById(h);
+    document.querySelectorAll(".rules li.lit").forEach(x=>x.classList.remove("lit"));
+    if(el){el.scrollIntoView({block:"start"});if(el.tagName==="LI")el.classList.add("lit")}else window.scrollTo(0,0)}
+  else if(h==="erga"||!h){if(window.__lastY!=null)window.scrollTo(0,window.__lastY)}}
+document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest('a[href^="#"]');if(a&&METH.test(a.getAttribute("href").slice(1))&&$("view-methodologia").hidden)window.__lastY=window.scrollY});
+window.addEventListener("hashchange",route);route();

@@ -91,3 +91,30 @@ footer{font-size:12.5px;color:var(--muted)}
 
 button.more{font:inherit;font-size:14px;font-weight:600;color:var(--accent);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px;cursor:pointer}
 button.more:hover{border-color:var(--accent)}
+
+/* Πλοήγηση και σελίδα μεθοδολογίας */
+.topnav{display:flex;gap:4px;padding-top:20px;font-size:14px;font-weight:600}
+.topnav a{color:var(--muted);text-decoration:none;padding:6px 12px;border-radius:999px}
+.topnav a.on{background:var(--accent-soft);color:var(--accent)}
+.topnav a:hover{color:var(--accent)}
+#view-erga{display:flex;flex-direction:column;gap:24px}
+#view-erga[hidden],.methpage[hidden]{display:none!important}
+.methpage{display:flex;flex-direction:column;gap:28px;max-width:760px}
+.methpage .back{font-size:14px;padding-top:12px}
+.methhead{padding-top:8px;display:flex;flex-direction:column;gap:10px}
+.methpage section{display:flex;flex-direction:column;gap:12px;scroll-margin-top:16px}
+.methpage h2{scroll-margin-top:16px}
+.rules{margin:0;padding:0;list-style:none;counter-reset:r;display:flex;flex-direction:column;gap:10px}
+.rules li{counter-increment:r;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 16px 14px 52px;position:relative;scroll-margin-top:16px}
+.rules li::before{content:counter(r);position:absolute;left:16px;top:14px;width:24px;height:24px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:13px;display:grid;place-items:center;font-variant-numeric:tabular-nums}
+.rules li.lit{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.rules h3{font-size:17px;margin:0 0 4px}
+.rules p{margin:0;max-width:68ch}
+.rules p.ex{margin-top:8px;font-size:13.5px;color:var(--muted)}
+.marks{margin:0;display:flex;flex-direction:column;gap:10px}
+.marks div{display:grid;grid-template-columns:minmax(0,200px) minmax(0,1fr);gap:12px;align-items:baseline}
+@media (max-width:560px){.marks div{grid-template-columns:minmax(0,1fr);gap:2px}}
+.marks dt{margin:0}.marks dd{margin:0}
+ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;max-width:72ch}
+a.why{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:700;font-style:normal;text-decoration:none;vertical-align:1px;margin-left:2px}
+a.why:hover,a.why:focus-visible{border-color:var(--accent);color:var(--accent)}
