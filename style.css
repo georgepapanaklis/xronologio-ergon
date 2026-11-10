@@ -4,8 +4,9 @@
   --accent:#1d6a83; --accent-soft:#e1eef2; --land:#e4e9e6; --sea:#f3f5f4;
   --band-a:#e9eeee; --band-b:#f8faf9; --band-hi:#cfe5ec;
   --mark:#18252d; --warn:#8a5a00; --warn-bg:#fbf1dc; --ok:#2f6b3a;
-  --f-display:"Literata", Georgia, "Times New Roman", serif;
-  --f-body:"Commissioner", "Segoe UI", system-ui, sans-serif;
+  /* Γραμματοσειρές του συστήματος: καμία σύνδεση με τρίτους */
+  --f-display:Georgia, "Noto Serif", "Times New Roman", serif;
+  --f-body:system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#11181c; --paper:#182227; --ink:#e3eaec; --muted:#97a7ae; --line:#2c3a41;
@@ -99,6 +100,10 @@ button.more:hover{border-color:var(--accent)}
 .topnav a:hover{color:var(--accent)}
 #view-erga{display:flex;flex-direction:column;gap:24px}
 #view-erga[hidden],.methpage[hidden]{display:none!important}
+.methpage section p{margin:0;max-width:72ch}
+footer.foot{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:16px;font-size:13px;color:var(--muted)}
+footer.foot p{margin:0;max-width:90ch}
+footer.foot a{word-break:break-word}
 .methpage{display:flex;flex-direction:column;gap:28px;max-width:760px}
 .methpage .back{font-size:14px;padding-top:12px}
 .methhead{padding-top:8px;display:flex;flex-direction:column;gap:10px}

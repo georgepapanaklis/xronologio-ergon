@@ -117,14 +117,15 @@ render();
 
 document.addEventListener("click",e=>{if(e.target&&e.target.id==="more"){limit+=PAGE;render(true)}});
 
-/* Δύο προβολές με βάση το #: τα έργα και η μεθοδολογία */
+/* Προβολές με βάση το #: έργα, μεθοδολογία, όροι, απόρρητο */
 const METH=/^(methodologia|kanonas-\d|endeixeis|piges|kalypsi|leipei)$/;
-function route(){const h=location.hash.slice(1);const m=METH.test(h);
-  $("view-erga").hidden=m;$("view-methodologia").hidden=!m;
-  $("nav-erga").classList.toggle("on",!m);$("nav-meth").classList.toggle("on",m);
-  if(m){const el=h==="methodologia"?null:document.getElementById(h);
-    document.querySelectorAll(".rules li.lit").forEach(x=>x.classList.remove("lit"));
-    if(el){el.scrollIntoView({block:"start"});if(el.tagName==="LI")el.classList.add("lit")}else window.scrollTo(0,0)}
-  else if(h==="erga"||!h){if(window.__lastY!=null)window.scrollTo(0,window.__lastY)}}
-document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest('a[href^="#"]');if(a&&METH.test(a.getAttribute("href").slice(1))&&$("view-methodologia").hidden)window.__lastY=window.scrollY});
+function viewOf(h){if(METH.test(h))return"methodologia";if(h==="oroi"||h==="diorthoseis")return"oroi";if(h==="aporrito")return"aporrito";return"erga"}
+function route(){const h=location.hash.slice(1),v=viewOf(h);
+  ["erga","methodologia","oroi","aporrito"].forEach(x=>{$("view-"+x).hidden=x!==v});
+  $("nav-erga").classList.toggle("on",v==="erga");$("nav-meth").classList.toggle("on",v==="methodologia");
+  document.querySelectorAll(".rules li.lit").forEach(x=>x.classList.remove("lit"));
+  if(v==="erga"){if(window.__lastY!=null)window.scrollTo(0,window.__lastY);return}
+  const el=["methodologia","oroi","aporrito"].includes(h)?null:document.getElementById(h);
+  if(el){el.scrollIntoView({block:"start"});if(el.tagName==="LI")el.classList.add("lit")}else window.scrollTo(0,0)}
+document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest('a[href^="#"]');if(a&&viewOf(a.getAttribute("href").slice(1))!=="erga"&&!$("view-erga").hidden)window.__lastY=window.scrollY});
 window.addEventListener("hashchange",route);route();
