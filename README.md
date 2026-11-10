@@ -98,7 +98,7 @@ python3 espa_convert.py espa_kriti_raw.json data-espa.js
 
 ## Άδειες χρήσης
 
-- **Κώδικας:** MIT (δες `LICENSE`)
+- **Κώδικας:** CC0 1.0, κοινό κτήμα, χωρίς υποχρέωση αναφοράς (δες `LICENSE`)
 - **Δεδομένα:** CC BY 4.0 (δες `LICENSE-DATA.md`)
 
 ## Διορθώσεις
